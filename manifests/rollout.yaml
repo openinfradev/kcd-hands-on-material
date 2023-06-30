@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  annotations:
+    rollout.argoproj.io/revision: "1"
+    rollout.argoproj.io/workload-generation: "1"
+  name: taeil-sb-1
+  namespace: taeil-sb-1
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: taeil-sb-1
+  strategy:
+    blueGreen:
+      activeService: taeil-sb-1
+      autoPromotionEnabled: true
+      previewService: taeil-sb-1-preview
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: taeil-sb-1

@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+    {{- if or (.Values.persistence.enabled) (.Values.config.configmap_enabled) (.Values.config.secret_enabled) }}
+      volumes:
+    {{- end }}
+      {{- if .Values.persistence.enabled }}
+        - name: {{ .Values.name }}-pv
+          persistentVolumeClaim:
+            claimName: {{ .Values.name }}-pvc
+      {{- end }}
+      {{- if .Values.config.configmap_enabled }}
+        - name: config-cm
+          configMap:
+            name: {{ .Values.name }}-config
+      {{- end }}
+      {{- if .Values.config.secret_enabled }}
+        - name: config-secret
+          secret:
+            secretName: {{ .Values.name }}-secret
+      {{- end }}
+      containers:
+        - name: main
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.url }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: OTEL_METRICS_EXPORTER
+            value: "prometheus"
+          - name: OTEL_TRACES_EXPORTER
+            value: "none"
+        {{- range $key, $value := .Values.extraEnv }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+        {{- end }}
+          ports:
+          - containerPort: {{ .Values.service.port }}
+            protocol: TCP
+            name: web
+          - containerPort: {{ .Values.service.metricsPort }}
+            protocol: TCP
+            name: metrics
+          command:
+          - java
+          - -Dspring.profiles.active={{ .Values.config.profile }}
+          - -XX:MinRAMPercentage=50.0
+          - -XX:MaxRAMPercentage=75.0
+          - -XshowSettings:vm
+          - -jar
+          - -javaagent:/usr/src/myapp/opentelemetry-javaagent.jar
+          - {{ .Values.config.executablePath }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          {{- if .Values.persistence.enabled }}
+            - mountPath: {{ .Values.persistence.mountPath }}
+              name: {{ .Values.name }}-pv
+          {{- end }}
+          {{- if .Values.config.configmap_enabled }}
+            - name: config-cm
+              mountPath: /config/
+          {{- end }}
+          {{- if .Values.config.secret_enabled }}
+            - name: config-secret
+              mountPath: /secret/
+          {{- end }}

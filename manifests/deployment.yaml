@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: FIXME_APP_NAME
+  name: FIXME_APP_NAME
+  namespace: FIXME_APP_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: FIXME_APP_NAME
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: FIXME_APP_NAME
+    spec:
+      containers:
+      - command:
+        - java
+        - -Dspring.profiles.active=default
+        - -XX:MinRAMPercentage=50.0
+        - -XX:MaxRAMPercentage=75.0
+        - -XshowSettings:vm
+        - -jar
+        - -javaagent:/usr/src/myapp/opentelemetry-javaagent.jar
+        - /usr/src/myapp/FIXME_ARTIFACT_NAME
+        env:
+        - name: OTEL_METRICS_EXPORTER
+          value: prometheus
+        - name: OTEL_TRACES_EXPORTER
+          value: none
+        image: FIXME_IMAGE_URL
+        imagePullPolicy: Always
+        name: main
+        ports:
+        - containerPort: FIXME_PORT
+          name: web
+          protocol: TCP
+        - containerPort: 9464
+          name: metrics
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
