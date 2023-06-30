@@ -1,23 +1,39 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  annotations:
-    rollout.argoproj.io/revision: "1"
-    rollout.argoproj.io/workload-generation: "1"
-  name: taeil-sb-1
-  namespace: taeil-sb-1
+  name: FIXME_APPNAME
+  namespace: FIXME_APPNAME
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: taeil-sb-1
+      app: FIXME_APPNAME
   strategy:
     blueGreen:
-      activeService: taeil-sb-1
-      autoPromotionEnabled: true
-      previewService: taeil-sb-1-preview
+      activeService: FIXME_APPNAME
+      previewService: FIXME_APPNAME-preview
+      autoPromotionEnabled: false
   workloadRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: taeil-sb-1
+    name: FIXME_APPNAME
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: FIXME_APP_NAME-preview
+  name: FIXME_APP_NAME-preview
+  namespace: FIXME_APP_NAME
+spec:
+  ports:
+  - name: web
+    port: 80
+    protocol: TCP
+    targetPort: FIXME_PORT
+  selector:
+    app: FIXME_APP_NAME
+  type: LoadBalancer
