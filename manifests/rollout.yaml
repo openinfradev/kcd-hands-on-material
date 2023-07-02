@@ -2,23 +2,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: FIXME_APPNAME
-  namespace: FIXME_APPNAME
+  name: FIXME_APP_NAME
+  namespace: FIXME_APP_NAME
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: FIXME_APPNAME
+      app: FIXME_APP_NAME
   strategy:
     blueGreen:
-      activeService: FIXME_APPNAME
-      previewService: FIXME_APPNAME-preview
+      activeService: FIXME_APP_NAME
+      previewService: FIXME_APP_NAME-preview
       autoPromotionEnabled: false
   workloadRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: FIXME_APPNAME
+    name: FIXME_APP_NAME
 
 ---
 apiVersion: v1
