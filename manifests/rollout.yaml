@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: FIXME_APP_NAME
-  namespace: FIXME_APP_NAME
+  namespace: FIXME_NAMESPACE
 spec:
   replicas: 1
   revisionHistoryLimit: 10
@@ -27,7 +27,7 @@ metadata:
   labels:
     app: FIXME_APP_NAME-preview
   name: FIXME_APP_NAME-preview
-  namespace: FIXME_APP_NAME
+  namespace: FIXME_NAMESPACE
 spec:
   ports:
   - name: web
